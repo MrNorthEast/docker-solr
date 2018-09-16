@@ -1,9 +1,4 @@
 FROM openjdk:8-jre
-MAINTAINER  Martijn Koster "mak-docker@greenhills.co.uk"
-
-# Override the solr download location with e.g.:
-#   docker build -t mine --build-arg SOLR_DOWNLOAD_SERVER=http://www-eu.apache.org/dist/lucene/solr .
-ARG SOLR_DOWNLOAD_SERVER
 
 RUN apt-get update && \
   apt-get -y install lsof procps wget gpg && \
@@ -13,10 +8,10 @@ ENV SOLR_USER="solr" \
     SOLR_UID="8983" \
     SOLR_GROUP="solr" \
     SOLR_GID="8983" \
-    SOLR_VERSION="4.9.1" \
-    SOLR_URL="${SOLR_DOWNLOAD_SERVER:-https://archive.apache.org/dist/lucene/solr}/4.9.1/solr-4.9.1.tgz" \
-    SOLR_SHA256="2bbe3a55976f118c5d8c2382d4591257f6e2af779c08c6561e44afa3181a87c1" \
-    SOLR_KEYS="5F55943E13D49059D3F342777186B06E1ED139E7" \
+    SOLR_VERSION="4.10.4" \
+    SOLR_URL="https://archive.apache.org/dist/lucene/solr}/4.10.4/solr-4.10.4.tgz" \
+    SOLR_SHA256="ac3543880f1b591bcaa962d7508b528d7b42e2b5548386197940b704629ae851" \
+    SOLR_KEYS="4B96409A098DBD511DF2BC18DBAF69BEA7239D59" \
     PATH="/opt/solr/bin:/opt/docker-solr/scripts:$PATH"
 
 ENV GOSU_VERSION 1.10
