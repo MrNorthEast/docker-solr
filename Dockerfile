@@ -1,10 +1,5 @@
 
 FROM openjdk:8-jre
-MAINTAINER  Martijn Koster "mak-docker@greenhills.co.uk"
-
-# Override the solr download location with e.g.:
-#   docker build -t mine --build-arg SOLR_DOWNLOAD_SERVER=http://www-eu.apache.org/dist/lucene/solr .
-ARG SOLR_DOWNLOAD_SERVER
 
 RUN apt-get update && \
   apt-get -y install lsof procps wget gpg && \
@@ -15,46 +10,15 @@ ENV SOLR_USER="solr" \
     SOLR_GROUP="solr" \
     SOLR_GID="8983" \
     SOLR_VERSION="4.10.4" \
-    SOLR_URL="${SOLR_DOWNLOAD_SERVER:-https://archive.apache.org/dist/lucene/solr}/4.10.4/solr-4.10.4.tgz" \
+    SOLR_URL="https://archive.apache.org/dist/lucene/solr/4.10.4/solr-4.10.4.tgz" \
     SOLR_SHA256="ac3543880f1b591bcaa962d7508b528d7b42e2b5548386197940b704629ae851" \
-    SOLR_KEYS="A72C08F85D7666C3980C35DD1A3859BBABBDB295" \
+    SOLR_KEYS="https://archive.apache.org/dist/lucene/solr/4.10.4/KEYS" \
     PATH="/opt/solr/bin:/opt/docker-solr/scripts:$PATH"
-
-# ENV GOSU_VERSION 1.10
-# ENV GOSU_KEY B42F6819007F00F88E364FD4036A9C25BF357DD4
 
 RUN groupadd -r --gid $SOLR_GID $SOLR_GROUP && \
   useradd -r --uid $SOLR_UID --gid $SOLR_GID $SOLR_USER
 
-RUN set -e; \
-  export GNUPGHOME="/tmp/gnupg_home" && \
-  mkdir -p "$GNUPGHOME" && \
-  chmod 700 "$GNUPGHOME" && \
-  for key in $SOLR_KEYS; do \
-    found=''; \
-    for server in \
-      ha.pool.sks-keyservers.net \
-      hkp://keyserver.ubuntu.com:80 \
-      hkp://p80.pool.sks-keyservers.net:80 \
-      pgp.mit.edu \
-    ; do \
-      echo "  trying $server for $key"; \
-      gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$key" && found=yes && break; \
-    done; \
-    test -z "$found" && echo >&2 "error: failed to fetch $key from several disparate servers -- network issues?" && exit 1; \
-  done; \
-  exit 0
-
-# RUN set -e; \
-#   export GNUPGHOME="/tmp/gnupg_home" && \
-#   dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
-#   wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
-#   wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
-#   gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu && \
-#   rm /usr/local/bin/gosu.asc && \
-#   chmod +x /usr/local/bin/gosu && \
-#   gosu nobody true && \
-RUN  mkdir -p /opt/solr && \
+RUN mkdir -p /opt/solr && \
   echo "downloading $SOLR_URL" && \
   wget -nv $SOLR_URL -O /opt/solr.tgz && \
   echo "downloading $SOLR_URL.asc" && \
@@ -62,7 +26,15 @@ RUN  mkdir -p /opt/solr && \
   echo "$SOLR_SHA256 */opt/solr.tgz" | sha256sum -c - && \
   (>&2 ls -l /opt/solr.tgz /opt/solr.tgz.asc) && \
   gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz && \
-  tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
+  echo "Hashes checked"
+
+RUN echo "downloading $SOLR_KEYS" && \
+  wget -nv $SOLR_KEYS -O /opt/KEYS && \
+  gpg --import /opt/KEYS && \
+  gpg --verify /opt/solr.tgz.asc && \
+  echo "Signature checked"
+
+RUN tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
   rm /opt/solr.tgz* && \
   rm -Rf /opt/solr/docs/ && \
   mkdir -p /opt/solr/server/solr/lib /opt/solr/server/solr/mycores /opt/solr/server/logs /docker-entrypoint-initdb.d /opt/docker-solr /opt/mysolrhome && \
