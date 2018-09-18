@@ -1,4 +1,3 @@
-
 # Step 0 - Base image JAVA 8
 FROM openjdk:8-jre
 
