@@ -33,9 +33,11 @@ RUN groupadd -r --gid $SOLR_GID $SOLR_GROUP && \
 #   echo "$SOLR_SHA256 */opt/solr.tgz" | sha256sum -c - && \
 #   (>&2 ls -l /opt/solr.tgz /opt/solr.tgz.asc) && \
 #   gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz
+#  shasum -a 1 solr-x.y.z.tgz && \
 
 # Step 5 - Extract Solr and install
-RUN echo "downloading $SOLR_URL" && \
+RUN mkdir -p /opt/solr && \
+  echo "downloading $SOLR_URL" && \
   wget -nv $SOLR_URL -O /opt/solr.tgz && \
   tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
   rm /opt/solr.tgz* && \
