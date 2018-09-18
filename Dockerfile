@@ -35,7 +35,9 @@ RUN groupadd -r --gid $SOLR_GID $SOLR_GROUP && \
 #   gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz
 
 # Step 5 - Extract Solr and install
-RUN tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
+RUN echo "downloading $SOLR_URL" && \
+  wget -nv $SOLR_URL -O /opt/solr.tgz && \
+  tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
   rm /opt/solr.tgz* && \
   rm -Rf /opt/solr/docs/ && \
   mkdir -p /opt/solr/server/solr/lib /opt/solr/server/solr/mycores /opt/solr/server/logs /docker-entrypoint-initdb.d /opt/docker-solr /opt/mysolrhome && \
