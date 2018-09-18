@@ -22,7 +22,7 @@ ENV SOLR_USER="solr" \
 RUN groupadd -r --gid $SOLR_GID $SOLR_GROUP && \
   useradd -r --uid $SOLR_UID --gid $SOLR_GID $SOLR_USER
 
-# Step 5 - Check Signature
+# Step 4 - Check signatures and hashes
 RUN echo "downloading $SOLR_KEYS" && \
   wget -nv $SOLR_KEYS -O /opt/KEYS && \
   gpg --import /opt/KEYS && \
@@ -33,20 +33,9 @@ RUN echo "downloading $SOLR_KEYS" && \
   wget -nv $SOLR_URL -O /opt/solr.tgz && \
   echo "$SOLR_SHA256 */opt/solr.tgz" | sha256sum -c - && \
   (>&2 ls -l /opt/solr.tgz /opt/solr.tgz.asc) && \
-  gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz && \
+  gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz
 
-# Step 4 - Download Solr and .asc file and check hashes
-# RUN mkdir -p /opt/solr && \
-#   echo "downloading $SOLR_URL" && \
-#   wget -nv $SOLR_URL -O /opt/solr.tgz && \
-#   echo "downloading $SOLR_URL.asc" && \
-#   wget -nv $SOLR_URL.asc -O /opt/solr.tgz.asc && \
-#   echo "$SOLR_SHA256 */opt/solr.tgz" | sha256sum -c - && \
-#   (>&2 ls -l /opt/solr.tgz /opt/solr.tgz.asc) && \
-#   gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz && \
-#   echo "Hashes checked"
-
-# Step 6 - Extract Solr and install
+# Step 5 - Extract Solr and install
 RUN tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
   rm /opt/solr.tgz* && \
   rm -Rf /opt/solr/docs/ && \
@@ -56,7 +45,7 @@ RUN tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
   sed -i -e '/-Dsolr.clustering.enabled=true/ a SOLR_OPTS="$SOLR_OPTS -Dsun.net.inetaddr.ttl=60 -Dsun.net.inetaddr.negative.ttl=60"' /opt/solr/bin/solr.in.sh && \
   chown -R $SOLR_USER:$SOLR_GROUP /opt/solr /opt/mysolrhome
 
-# Step 7 - Copy scripts and permissions
+# Step 6 - Copy scripts and permissions
 COPY scripts /opt/docker-solr/scripts
 RUN chown -R $SOLR_USER:$SOLR_GROUP /opt/docker-solr
 
