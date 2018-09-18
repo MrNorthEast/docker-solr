@@ -22,17 +22,17 @@ RUN groupadd -r --gid $SOLR_GID $SOLR_GROUP && \
   useradd -r --uid $SOLR_UID --gid $SOLR_GID $SOLR_USER
 
 # Step 4 - Check signatures and hashes
-RUN echo "downloading $SOLR_KEYS" && \
-  wget -nv $SOLR_KEYS -O /opt/KEYS && \
-  gpg --import /opt/KEYS && \
-  echo "downloading $SOLR_URL.asc" && \
-  wget -nv $SOLR_URL.asc -O /opt/solr.tgz.asc && \
-  gpg --verify /opt/solr.tgz.asc && \
-  echo "downloading $SOLR_URL" && \
-  wget -nv $SOLR_URL -O /opt/solr.tgz && \
-  echo "$SOLR_SHA256 */opt/solr.tgz" | sha256sum -c - && \
-  (>&2 ls -l /opt/solr.tgz /opt/solr.tgz.asc) && \
-  gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz
+# RUN echo "downloading $SOLR_KEYS" && \
+#   wget -nv $SOLR_KEYS -O /opt/KEYS && \
+#   gpg --import /opt/KEYS && \
+#   echo "downloading $SOLR_URL.asc" && \
+#   wget -nv $SOLR_URL.asc -O /opt/solr.tgz.asc && \
+#   gpg --verify /opt/solr.tgz.asc && \
+#   echo "downloading $SOLR_URL" && \
+#   wget -nv $SOLR_URL -O /opt/solr.tgz && \
+#   echo "$SOLR_SHA256 */opt/solr.tgz" | sha256sum -c - && \
+#   (>&2 ls -l /opt/solr.tgz /opt/solr.tgz.asc) && \
+#   gpg --batch --verify /opt/solr.tgz.asc /opt/solr.tgz
 
 # Step 5 - Extract Solr and install
 RUN tar -C /opt/solr --extract --file /opt/solr.tgz --strip-components=1 && \
