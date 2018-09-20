@@ -39,7 +39,7 @@ COPY scripts /opt/docker-solr/scripts
 
 RUN chown -R $SOLR_USER:$SOLR_GROUP /opt/docker-solr
 
-RUN chmod -R /opt/docker-solr/scripts
+RUN chmod -R 774 /opt/docker-solr/scripts
 
 RUN chmod +x /opt/docker-solr/scripts/docker-entrypoint.sh
 
