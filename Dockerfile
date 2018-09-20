@@ -37,11 +37,10 @@ RUN mkdir -p /opt/solr && \
 # Step 5 - Copy scripts and permissions
 COPY scripts /opt/docker-solr/scripts
 
+RUN chmod +x /opt/docker-solr/scripts/docker-entrypoint.sh && \
+  chmod +x /opt/docker-solr/scripts
+
 RUN chown -R $SOLR_USER:$SOLR_GROUP /opt/docker-solr
-
-RUN chmod -R 774 /opt/docker-solr/scripts
-
-RUN chmod +x /opt/docker-solr/scripts/docker-entrypoint.sh
 
 EXPOSE 8983
 WORKDIR /opt/solr
