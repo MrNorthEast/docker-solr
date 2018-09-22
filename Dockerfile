@@ -15,7 +15,7 @@ ENV SOLR_USER="solr" \
     SOLR_URL="https://archive.apache.org/dist/lucene/solr/4.10.4/solr-4.10.4.tgz" \
     SOLR_SHA256="ac3543880f1b591bcaa962d7508b528d7b42e2b5548386197940b704629ae851" \
     SOLR_KEYS="https://archive.apache.org/dist/lucene/solr/4.10.4/KEYS" \
-    PATH="/opt/solr/bin:/opt/docker-solr/scripts:${PATH}"
+    #PATH="/opt/solr/bin:/opt/docker-solr/scripts:${PATH}"
 
 # Step 3 - Add group and user
 RUN groupadd -r --gid $SOLR_GID $SOLR_GROUP && \
@@ -35,16 +35,14 @@ RUN mkdir -p /opt/solr && \
   chown -R $SOLR_USER:$SOLR_GROUP /opt/solr /opt/mysolrhome
 
 # Step 5 - Copy scripts and permissions
-COPY scripts /opt/docker-solr/scripts
+COPY scripts /opt/solr/bin
 
-RUN chmod +x /opt/docker-solr/scripts/docker-entrypoint.sh && \
-  chmod -R +x /opt/docker-solr/scripts
-
-RUN chown -R $SOLR_USER:$SOLR_GROUP /opt/docker-solr
+RUN chmod +x /opt/solr/bin/docker-entrypoint.sh && \
+  chown -R $SOLR_USER:$SOLR_GROUP /opt/solr/bin
 
 EXPOSE 8983
 WORKDIR /opt/solr
 USER $SOLR_USER
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/opt/solr/bin/docker-entrypoint.sh"]
 CMD ["solr-foreground"]
