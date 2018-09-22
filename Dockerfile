@@ -46,5 +46,5 @@ EXPOSE 8983
 WORKDIR /opt/solr
 USER $SOLR_USER
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/opt/docker-solr/scripts/docker-entrypoint.sh"]
 CMD ["solr-foreground"]
