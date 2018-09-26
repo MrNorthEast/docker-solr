@@ -18,9 +18,6 @@
 
 set -e
 
-# init script for handling a custom SOLR_HOME
-/opt/docker-solr/scripts/init-solr-home
-
 # execute files in /docker-entrypoint-initdb.d before starting solr
 while read f; do
     case "$f" in
